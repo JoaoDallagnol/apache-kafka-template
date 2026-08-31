@@ -1,0 +1,29 @@
+meta {
+  name: Create Notification
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{notificationBaseUrl}}/api/v1/notifications
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "aggregateId": "{{orderId}}",
+    "type": "ORDER_CREATED",
+    "recipient": "customer-001",
+    "message": "Order received"
+  }
+}
+
+vars:pre-request {
+  notificationBaseUrl: localhost:8083
+  orderId: e2c7c6fe-0ae8-446c-8690-9d94af2c33b1
+}

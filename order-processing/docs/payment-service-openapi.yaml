@@ -1,0 +1,99 @@
+openapi: 3.1.0
+info:
+  title: Payment Service API
+  version: 0.0.1
+  description: API for creating and querying payments. Kafka consumption and publishing are intentionally left for the roadmap implementation.
+servers:
+  - url: http://localhost:8082
+    description: Local payment-service
+tags:
+  - name: Payments
+paths:
+  /api/v1/payments:
+    post:
+      tags: [Payments]
+      summary: Create a payment
+      description: Creates a payment directly through REST. Amounts greater than 1000 are rejected by the current sample business rule.
+      operationId: createPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePaymentRequest"
+            example:
+              orderId: 00000000-0000-0000-0000-000000000000
+              amount: 249.70
+      responses:
+        "201":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+    get:
+      tags: [Payments]
+      summary: List payments
+      operationId: listPayments
+      responses:
+        "200":
+          description: Payments found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentResponse"
+  /api/v1/payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get a payment by id
+      operationId: getPaymentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Payment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+        "404":
+          description: Payment not found
+components:
+  schemas:
+    CreatePaymentRequest:
+      type: object
+      required: [orderId, amount]
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+        createdAt:
+          type: string
+          format: date-time
+    PaymentStatus:
+      type: string
+      enum: [APPROVED, REJECTED]

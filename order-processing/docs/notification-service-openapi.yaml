@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Notification Service API
+  version: 0.0.1
+  description: API for creating and querying notifications. Kafka consumers are intentionally left for the roadmap implementation.
+servers:
+  - url: http://localhost:8083
+    description: Local notification-service
+tags:
+  - name: Notifications
+paths:
+  /api/v1/notifications:
+    post:
+      tags: [Notifications]
+      summary: Create a notification
+      description: Creates a notification directly through REST.
+      operationId: createNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationRequest"
+            example:
+              aggregateId: 00000000-0000-0000-0000-000000000000
+              type: ORDER_CREATED
+              recipient: customer-001
+              message: Order received
+      responses:
+        "201":
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      operationId: listNotifications
+      responses:
+        "200":
+          description: Notifications found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationResponse"
+  /api/v1/notifications/{id}:
+    get:
+      tags: [Notifications]
+      summary: Get a notification by id
+      operationId: getNotificationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Notification found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        "404":
+          description: Notification not found
+components:
+  schemas:
+    CreateNotificationRequest:
+      type: object
+      required: [aggregateId, type, recipient, message]
+      properties:
+        aggregateId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/NotificationType"
+        recipient:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 1
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        aggregateId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/NotificationType"
+        recipient:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    NotificationType:
+      type: string
+      enum: [ORDER_CREATED, PAYMENT_APPROVED, PAYMENT_REJECTED]

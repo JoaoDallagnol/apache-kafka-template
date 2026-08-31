@@ -1,0 +1,15 @@
+meta {
+  name: List Notifications
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{notificationBaseUrl}}/api/v1/notifications
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  notificationBaseUrl: localhost:8083
+}

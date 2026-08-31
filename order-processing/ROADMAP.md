@@ -11,11 +11,11 @@ O objetivo do `order-processing` e simular um fluxo comum em microservices: um p
 
 ### 1.1 Estrutura dos microservices
 
-- [ ] Validar que os tres servicos sobem separadamente:
+- [x] Validar que os tres servicos sobem separadamente:
   - `order-service` na porta `8081`
   - `payment-service` na porta `8082`
   - `notification-service` na porta `8083`
-- [ ] Entender a separacao por camada:
+- [x] Entender a separacao por camada:
   - `controller`: entrada REST.
   - `service`: regra de negocio.
   - `repository`: acesso ao banco.

@@ -1,0 +1,37 @@
+meta {
+  name: Create Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{orderBaseUrl}}/api/v1/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "customerId": "customer-001",
+    "items": [
+      {
+        "productId": "product-001",
+        "quantity": 2,
+        "unitPrice": 49.90
+      },
+      {
+        "productId": "product-002",
+        "quantity": 1,
+        "unitPrice": 149.90
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  orderBaseUrl: localhost:8081
+}
