@@ -27,17 +27,17 @@ Por que fazer: antes de Kafka entrar, cada MS precisa funcionar sozinho. Kafka n
 
 ### 1.2 Criacao de pedido via REST
 
-- [ ] Criar um pedido em `POST /api/v1/orders`.
-- [ ] Listar pedidos em `GET /api/v1/orders`.
-- [ ] Consultar um pedido por id em `GET /api/v1/orders/{id}`.
+- [x] Criar um pedido em `POST /api/v1/orders`.
+- [x] Listar pedidos em `GET /api/v1/orders`.
+- [x] Consultar um pedido por id em `GET /api/v1/orders/{id}`.
 
 O que Kafka fara depois: apos salvar o pedido, o `order-service` vai publicar um evento `OrderCreatedEvent`.
 
 ### 1.3 Portas de evento sem implementacao
 
-- [ ] Localizar `OrderEventPublisher` no `order-service`.
-- [ ] Localizar `PaymentEventPublisher` no `payment-service`.
-- [ ] Entender que as classes `NoOp...Publisher` existem apenas para a API funcionar antes da implementacao Kafka.
+- [x] Localizar `OrderEventPublisher` no `order-service`.
+- [x] Localizar `PaymentEventPublisher` no `payment-service`.
+- [x] Entender que as classes `NoOp...Publisher` existem apenas para a API funcionar antes da implementacao Kafka.
 
 Por que fazer: o service conhece uma porta de publicacao, nao conhece diretamente `KafkaTemplate`. Isso evita acoplar regra de negocio na tecnologia de mensageria.
 
@@ -45,9 +45,9 @@ Por que fazer: o service conhece uma porta de publicacao, nao conhece diretament
 
 ### 2.1 Subir Kafka local
 
-- [ ] Criar um `docker-compose.yaml` na raiz ou em `infra/`.
-- [ ] Subir Kafka local em `localhost:9092`.
-- [ ] Validar com `kafka-topics.sh --list`.
+- [x] Criar um `docker-compose.yaml` na raiz ou em `infra/`.
+- [x] Subir Kafka local em `localhost:9092`.
+- [x] Validar com `kafka-topics.sh --list`.
 
 O que praticar: bootstrap server, broker local, CLI do Kafka e diferenca entre acessar Kafka de fora do container e de dentro do container.
 
