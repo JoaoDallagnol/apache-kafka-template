@@ -45,45 +45,123 @@ Por que fazer: o service conhece uma porta de publicacao, nao conhece diretament
 
 ### 2.1 Subir Kafka local
 
-- [x] Criar um `docker-compose.yaml` na raiz ou em `infra/`.
+- [x] Criar um `docker-compose.yaml` na raiz do projeto `order-processing/`.
 - [x] Subir Kafka local em `localhost:9092`.
 - [x] Validar com `kafka-topics.sh --list`.
 
 O que praticar: bootstrap server, broker local, CLI do Kafka e diferenca entre acessar Kafka de fora do container e de dentro do container.
 
-### 2.2 Criar topicos iniciais
+### 2.2 Criar topicos iniciais via Spring
 
-- [ ] Criar o topic `orders.created`.
-- [ ] Criar o topic `payments.processed`.
-- [ ] Definir inicialmente 3 particoes para cada topic.
+- [x] Adicionar dependencia Spring Kafka em `order-service/pom.xml`.
+- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicConfig.java`.
+- [ ] Declarar um `@Bean NewTopic ordersCreatedTopic()` para o topic `orders.created`.
+- [ ] Definir `orders.created` com 3 particoes e replication factor 1.
+- [ ] Manter o nome do topic em `order-service/src/main/resources/application.yaml`:
+  - `app.kafka.topics.orders-created=orders.created`.
+- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicProperties.java`.
+- [ ] Mapear `app.kafka.topics.orders-created` em `KafkaTopicProperties`.
+- [ ] Usar `KafkaTopicProperties` dentro de `KafkaTopicConfig`, em vez de hardcoded string.
+- [ ] Subir o `order-service` e validar se o topic foi criado com `kafka-topics.sh --describe --topic orders.created`.
 
-Por que fazer: em projeto real, topico tem nome de evento/fato de negocio. `orders.created` representa algo que ja aconteceu, nao um comando para outro servico.
+Arquivo esperado:
+
+```text
+order-service/
+  src/main/java/com/example/orderprocessing/order/config/kafka/
+    KafkaTopicConfig.java
+    KafkaTopicProperties.java
+```
+
+Por que fazer: neste projeto, os topics serao criados por `@Bean NewTopic` para que a configuracao fique visivel no codigo. O topic continua tendo nome de evento/fato de negocio: `orders.created` representa algo que ja aconteceu, nao um comando para outro servico.
 
 ### 2.3 Producer no order-service
 
-- [ ] Adicionar dependencia Spring Kafka no `order-service`.
-- [ ] Criar configuracao de producer.
-- [ ] Implementar `OrderEventPublisher` com Kafka.
+- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaProducerConfig.java`.
+- [ ] Criar producer para key `String` e value `OrderCreatedEvent`.
+- [ ] Configurar serializacao JSON do value.
+- [ ] Configurar idempotencia do producer.
+- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/messaging/kafka/OrderKafkaEventPublisher.java`.
+- [ ] Fazer `OrderKafkaEventPublisher` implementar `OrderEventPublisher`.
 - [ ] Publicar `OrderCreatedEvent` no topic `orders.created`.
 - [ ] Usar `orderId` como message key.
+
+Arquivos esperados:
+
+```text
+order-service/
+  src/main/java/com/example/orderprocessing/order/config/kafka/
+    KafkaProducerConfig.java
+    KafkaTopicProperties.java
+  src/main/java/com/example/orderprocessing/order/messaging/kafka/
+    OrderKafkaEventPublisher.java
+```
 
 Como funciona: a key define a particao. Usar `orderId` garante que eventos do mesmo pedido tendem a manter ordem dentro da mesma particao.
 
 ### 2.4 Consumer no payment-service
 
-- [ ] Adicionar dependencia Spring Kafka no `payment-service`.
-- [ ] Criar listener para `orders.created`.
+- [ ] Adicionar dependencia Spring Kafka em `payment-service/pom.xml`.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/config/kafka/KafkaTopicProperties.java`.
+- [ ] Mapear `app.kafka.topics.orders-created=orders.created`.
+- [ ] Mapear `app.kafka.topics.payments-processed=payments.processed`.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/config/kafka/KafkaConsumerConfig.java`.
+- [ ] Criar consumer para key `String` e value `OrderCreatedEvent`.
+- [ ] Configurar desserializacao JSON do value.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/config/kafka/KafkaProducerConfig.java`.
+- [ ] Criar producer para key `String` e value `PaymentProcessedEvent`.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/config/kafka/KafkaTopicConfig.java`.
+- [ ] Declarar um `@Bean NewTopic paymentsProcessedTopic()` para o topic `payments.processed`.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/messaging/kafka/OrderCreatedKafkaListener.java`.
+- [ ] Criar listener para `orders.created` com group id `payment-service`.
 - [ ] Converter payload JSON para `OrderCreatedEvent`.
 - [ ] Chamar `PaymentService.handleOrderCreated`.
+- [ ] Criar o arquivo `payment-service/src/main/java/com/example/orderprocessing/payment/messaging/kafka/PaymentKafkaEventPublisher.java`.
+- [ ] Fazer `PaymentKafkaEventPublisher` implementar `PaymentEventPublisher`.
 - [ ] Publicar `PaymentProcessedEvent` em `payments.processed`.
+
+Arquivos esperados:
+
+```text
+payment-service/
+  src/main/java/com/example/orderprocessing/payment/config/kafka/
+    KafkaConsumerConfig.java
+    KafkaProducerConfig.java
+    KafkaTopicConfig.java
+    KafkaTopicProperties.java
+  src/main/java/com/example/orderprocessing/payment/messaging/kafka/
+    OrderCreatedKafkaListener.java
+    PaymentKafkaEventPublisher.java
+```
 
 O que Kafka esta fazendo: desacoplando `order-service` de `payment-service`. O pedido nao chama pagamento por HTTP; ele publica um fato e segue.
 
 ### 2.5 Consumer no notification-service
 
-- [ ] Adicionar dependencia Spring Kafka no `notification-service`.
-- [ ] Consumir `orders.created` para criar notificacao de pedido recebido.
-- [ ] Consumir `payments.processed` para criar notificacao de pagamento aprovado/rejeitado.
+- [ ] Adicionar dependencia Spring Kafka em `notification-service/pom.xml`.
+- [ ] Criar o arquivo `notification-service/src/main/java/com/example/orderprocessing/notification/config/kafka/KafkaTopicProperties.java`.
+- [ ] Mapear `app.kafka.topics.orders-created=orders.created`.
+- [ ] Mapear `app.kafka.topics.payments-processed=payments.processed`.
+- [ ] Criar o arquivo `notification-service/src/main/java/com/example/orderprocessing/notification/config/kafka/KafkaConsumerConfig.java`.
+- [ ] Criar consumer para key `String` e value JSON.
+- [ ] Criar o arquivo `notification-service/src/main/java/com/example/orderprocessing/notification/messaging/kafka/OrderCreatedKafkaListener.java`.
+- [ ] Consumir `orders.created` com group id `notification-service`.
+- [ ] Chamar `NotificationService.handleOrderCreated`.
+- [ ] Criar o arquivo `notification-service/src/main/java/com/example/orderprocessing/notification/messaging/kafka/PaymentProcessedKafkaListener.java`.
+- [ ] Consumir `payments.processed` com group id `notification-service`.
+- [ ] Chamar `NotificationService.handlePaymentProcessed`.
+
+Arquivos esperados:
+
+```text
+notification-service/
+  src/main/java/com/example/orderprocessing/notification/config/kafka/
+    KafkaConsumerConfig.java
+    KafkaTopicProperties.java
+  src/main/java/com/example/orderprocessing/notification/messaging/kafka/
+    OrderCreatedKafkaListener.java
+    PaymentProcessedKafkaListener.java
+```
 
 Por que fazer: um mesmo evento pode ter mais de um consumidor independente. Isso e uma das utilizacoes mais comuns de Kafka em MS.
 
@@ -154,7 +232,7 @@ Por que fazer: consumer falhando sem politica clara trava processamento ou perde
 
 ### 5.2 Dead Letter Topic
 
-- [ ] Criar `orders.created.dlt`.
+- [ ] Criar `orders.created.dlt` em `payment-service/src/main/java/com/example/orderprocessing/payment/config/kafka/KafkaTopicConfig.java`.
 - [ ] Enviar mensagem para DLT apos retries esgotados.
 - [ ] Logar causa do erro.
 
@@ -250,11 +328,11 @@ Boa pratica: mock de Kafka testa pouco. Para fluxo critico, use broker real em t
 
 ### 9.1 Configuracao externa
 
-- [ ] Mover nomes de topicos para `application.yaml`.
-- [ ] Mover group ids para config.
+- [ ] Garantir que todos os nomes de topicos estejam em `application.yaml`.
+- [ ] Garantir que todos os group ids estejam em `application.yaml`.
 - [ ] Separar profiles `local` e `test`.
 
-Por que fazer: topico e group id mudam por ambiente. Hardcode e aceitavel no inicio, mas ruim como padrao.
+Por que fazer: topico e group id mudam por ambiente. Mesmo usando `@Bean NewTopic`, o nome do topic deve vir de configuracao, nao de string espalhada pelo codigo.
 
 ### 9.2 Payload pequeno e objetivo
 
