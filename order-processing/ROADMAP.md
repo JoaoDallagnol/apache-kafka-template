@@ -54,15 +54,15 @@ O que praticar: bootstrap server, broker local, CLI do Kafka e diferenca entre a
 ### 2.2 Criar topicos iniciais via Spring
 
 - [x] Adicionar dependencia Spring Kafka em `order-service/pom.xml`.
-- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicConfig.java`.
-- [ ] Declarar um `@Bean NewTopic ordersCreatedTopic()` para o topic `orders.created`.
-- [ ] Definir `orders.created` com 3 particoes e replication factor 1.
-- [ ] Manter o nome do topic em `order-service/src/main/resources/application.yaml`:
+- [x] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicConfig.java`.
+- [x] Declarar um `@Bean NewTopic ordersCreatedTopic()` para o topic `orders.created`.
+- [x] Definir `orders.created` com 3 particoes e replication factor 1.
+- [x] Manter o nome do topic em `order-service/src/main/resources/application.yaml`:
   - `app.kafka.topics.orders-created=orders.created`.
-- [ ] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicProperties.java`.
-- [ ] Mapear `app.kafka.topics.orders-created` em `KafkaTopicProperties`.
-- [ ] Usar `KafkaTopicProperties` dentro de `KafkaTopicConfig`, em vez de hardcoded string.
-- [ ] Subir o `order-service` e validar se o topic foi criado com `kafka-topics.sh --describe --topic orders.created`.
+- [x] Criar o arquivo `order-service/src/main/java/com/example/orderprocessing/order/config/kafka/KafkaTopicProperties.java`.
+- [x] Mapear `app.kafka.topics.orders-created` em `KafkaTopicProperties`.
+- [x] Usar `KafkaTopicProperties` dentro de `KafkaTopicConfig`, em vez de hardcoded string.
+- [x] Subir o `order-service` e validar se o topic foi criado com `kafka-topics.sh --describe --topic orders.created`.
 
 Arquivo esperado:
 

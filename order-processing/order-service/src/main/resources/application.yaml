@@ -21,4 +21,7 @@ spring:
 app:
   kafka:
     topics:
-        orders-created: orders.created
+        orders-created:
+          name: orders.created
+          partitions: 3
+          replicas: 1
