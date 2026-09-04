@@ -15,3 +15,35 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: payment-service
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: com.example.orderprocessing.payment.event
+    producer:
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+app:
+  kafka:
+    topics:
+      orders-created:
+        name: orders.created
+        dlt-name: orders.created.dlt
+        partitions: 3
+        replicas: 1
+      payments-processed:
+        name: payments.processed
+        partitions: 3
+        replicas: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Order Service API
   version: 0.0.1
-  description: API for creating and querying purchase orders. Kafka publishing is intentionally left for the roadmap implementation.
+  description: API for creating and querying purchase orders. Created orders are published to Kafka through the outbox pattern.
 servers:
   - url: http://localhost:8081
     description: Local order-service
@@ -13,7 +13,7 @@ paths:
     post:
       tags: [Orders]
       summary: Create an order
-      description: Creates a purchase order in the local database. The Kafka OrderCreated event publisher is currently a no-op.
+      description: Creates a purchase order in the local database and stores an outbox event that is later published to Kafka.
       operationId: createOrder
       requestBody:
         required: true

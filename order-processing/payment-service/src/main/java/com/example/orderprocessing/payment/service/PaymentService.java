@@ -56,6 +56,11 @@ public class PaymentService {
     }
 
     private Payment process(UUID orderId, BigDecimal amount) {
+        return paymentRepository.findByOrderId(orderId)
+                .orElseGet(() -> createPayment(orderId, amount));
+    }
+
+    private Payment createPayment(UUID orderId, BigDecimal amount) {
         PaymentStatus status = amount.compareTo(AUTO_REJECT_THRESHOLD) > 0 ? PaymentStatus.REJECTED : PaymentStatus.APPROVED;
         return paymentRepository.save(new Payment(UUID.randomUUID(), orderId, amount, status, Instant.now()));
     }

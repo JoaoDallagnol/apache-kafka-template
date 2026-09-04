@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Notification Service API
   version: 0.0.1
-  description: API for creating and querying notifications. Kafka consumers are intentionally left for the roadmap implementation.
+  description: API for creating and querying notifications. The service also consumes order and payment events through Kafka.
 servers:
   - url: http://localhost:8083
     description: Local notification-service

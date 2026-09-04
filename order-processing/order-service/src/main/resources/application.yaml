@@ -17,11 +17,25 @@ spring:
     open-in-view: false
   kafka:
     bootstrap-servers: localhost:9092
+    producer:
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
 
 app:
   kafka:
     topics:
-        orders-created:
-          name: orders.created
-          partitions: 3
-          replicas: 1
+      orders-created:
+        name: orders.created
+        partitions: 3
+        replicas: 1
+    outbox:
+      fixed-delay: 2000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
